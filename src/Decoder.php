@@ -73,8 +73,6 @@ class Decoder implements DecoderInterface
     protected $transparentB = -1;
     protected $transparentI =  0;
 
-    protected $dispos = [];
-
     /**
      * @param MemoryStream $gifStream
      */
@@ -180,13 +178,14 @@ class Decoder implements DecoderInterface
                 }
             } else {
                 if ($u == 0x04) {
-                    if ((isset($this->buffer[4]) ? $this->buffer[4] : 0) & 0x80) {
-                        $this->dispos[] = ( $this->buffer[0] >> 2 ) - 1;
-                    } else {
-                        $this->dispos[] = ( $this->buffer[0] >> 2 ) - 0;
-                    }
-
                     $this->currentFrame = new Frame();
+
+                    $this->currentFrame->setDisposalMethod(
+                        (isset($this->buffer[4]) ? $this->buffer[4] : 0) & 0x80
+                        ? ($this->buffer[0] >> 2) - 1
+                        : ($this->buffer[0] >> 2) - 0
+                    );
+
                     $this->currentFrame->setDuration(
                         ($this->buffer[1] | $this->buffer[2] << 8)
                     );
