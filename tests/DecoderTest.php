@@ -26,8 +26,10 @@ class DecoderTest extends \PHPUnit_Framework_TestCase
 
         $md5 = json_decode(file_get_contents(__DIR__.'/gifs/test1.json'), true);
         $gifDecoder->decode(function (Frame $frame, $index) use (&$md5) {
+
+            $paddedIndex = str_pad($index, 3, '0', STR_PAD_LEFT);
             file_put_contents(
-                __DIR__."/frames/frame{$index}.gif",
+                __DIR__."/frames/frame{$paddedIndex}.gif",
                 $frame->getStream()->getContents()
             );
 
