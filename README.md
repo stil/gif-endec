@@ -1,11 +1,13 @@
 #gif-endec
 
-###Introduction
-gif-endec is a GIF encoder and decoder.
+###What is that?
+gif-endec is a GIF encoder and decoder. It allows you to split animated GIFs into separate frames. You can also extract frame durations and disposal method (disposal method indicates the way in which the graphic is to be treated after being displayed).
 
+###Performance
+Thanks to some code optimizations, this library decodes animated GIFs about 2.5x faster than [Sybio/GifFrameExtractor](https://github.com/Sybio/GifFrameExtractor). It also optimizes memory usage, allowing you to process decoded frames one after another. It doesn't load all frames to memory at once.
 
 ###Installation
-Install this package with Composer
+Install this package with Composer.
 ```json
 {
     "require": {
@@ -19,13 +21,12 @@ In this example we'll split this animated GIF into separate frames.
 ![](https://raw.githubusercontent.com/stil/gif-endec/master/tests/gifs/test1.gif)
 
 
-
 ```php
 <?php
 require __DIR__.'/../vendor/autoload.php';
 
-use GIFEndec\Decoder;
 use GIFEndec\MemoryStream;
+use GIFEndec\Decoder;
 use GIFEndec\Frame;
 
 /**
