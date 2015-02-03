@@ -9,9 +9,9 @@ class Frame
     protected $stream;
 
     /**
-     * @var int GIF frame delay in hundreds of second (1/100)
+     * @var int GIF frame duration in hundreds of second (1/100s)
      */
-    protected $delay;
+    protected $duration;
 
     public function __construct()
     {
@@ -28,13 +28,19 @@ class Frame
         return imagecreatefromstring($this->stream->getContents());
     }
 
-    public function setDuration($seconds)
+    /**
+     * @param int $time Hundreds of second (1/100s)
+     */
+    public function setDuration($time)
     {
-        $this->delay = $seconds;
+        $this->duration = $time;
     }
 
+    /**
+     * @return int Hundreds of second (1/100s)
+     */
     public function getDuration()
     {
-        return $this->delay;
+        return $this->duration;
     }
 }
