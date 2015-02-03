@@ -35,11 +35,15 @@ class MemoryStream
             return false;
         }
 
-        $buffer = [];
-        for ($i = 0; $i < $bytesCount; $i++) {
-            $buffer[] = ord($this->bytes[$this->offset++]);
+        if ($bytesCount === 1) {
+            $buffer = [ord($this->bytes[$this->offset])];
+        } else {
+            // microptimizations
+            $bytes = substr($this->bytes, $this->offset, $bytesCount);
+            $buffer = array_values(unpack('C*', $bytes));
         }
 
+        $this->offset += $bytesCount;
         return true;
     }
 
@@ -48,10 +52,15 @@ class MemoryStream
      */
     public function writeBytes(array $bytes)
     {
-        foreach ($bytes as $byte) {
-            $this->bytes .= chr($byte);
-            $this->offset++;
+        $count = count($bytes);
+        if ($count == 1) {
+            $this->bytes .= chr($bytes[0]);
+        } else {
+            // microptimizations
+            $this->bytes .= call_user_func_array("pack", array_merge(["C*"], $bytes));
         }
+
+        $this->offset += $count;
     }
 
     /**
