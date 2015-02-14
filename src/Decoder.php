@@ -81,6 +81,9 @@ class Decoder implements DecoderInterface
         $this->stream = $gifStream;
     }
 
+    /**
+     * @param callable $onFrameDecoded
+     */
     public function decode(callable $onFrameDecoded)
     {
         $this->onFrameDecoded = $onFrameDecoded;
@@ -234,7 +237,7 @@ class Decoder implements DecoderInterface
         $stream->writeBytes($this->screen);
         if ($gctFlag == 1) {
             $this->readBytes(3 * $size);
-            if ( $this->transparentI ) {
+            if ($this->transparentI) {
                 $this->transparentR = $this->buffer[3 * $this->transparentI + 0];
                 $this->transparentG = $this->buffer[3 * $this->transparentI + 1];
                 $this->transparentB = $this->buffer[3 * $this->transparentI + 2];
