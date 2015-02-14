@@ -1,6 +1,7 @@
 {
     "name": "stil/gif-endec",
     "description": "PHP GIF decoder and decoder with callback functions.",
+    "keywords": ["GIF", "animated", "frame", "duration", "PHP"],
     "license": "MIT",
     "require": {
         "php": ">=5.4"
