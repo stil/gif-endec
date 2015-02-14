@@ -257,16 +257,15 @@ class Decoder implements DecoderInterface
         $stream->writeBytes([0x2C]);
         $screen[8] &= 0x40;
         $stream->writeBytes($screen);
-        $this->readBytes(1);
-        $stream->writeBytes($this->buffer);
+        $this->copyBytes(1, $stream);
         while (true) {
             $this->readBytes(1);
             $stream->writeBytes($this->buffer);
             if (($u = $this->buffer[0]) == 0x00) {
                 break;
             }
-            $this->readBytes($u);
-            $stream->writeBytes($this->buffer);
+
+            $this->copyBytes($u, $stream);
         }
 
         $stream->writeBytes([0x3B]);
@@ -280,12 +279,22 @@ class Decoder implements DecoderInterface
     }
 
     /**
-     * @param $bytesCount
+     * @param int $bytesCount How many bytes to read
      * @return bool
      */
     protected function readBytes($bytesCount)
     {
         return $this->stream->readBytes($bytesCount, $this->buffer);
+    }
+
+    /**
+     * @param int $bytesCount How many bytes to copy
+     * @param MemoryStream $stream Destination stream
+     * @return bool
+     */
+    protected function copyBytes($bytesCount, MemoryStream $stream)
+    {
+        return $this->stream->copyBytes($bytesCount, $stream);
     }
 
     /**

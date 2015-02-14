@@ -48,6 +48,27 @@ class MemoryStream
     }
 
     /**
+     * @param int $bytesCount How many bytes to copy
+     * @param MemoryStream $stream Destination stream
+     * @return bool TRUE if succeeded, FALSE if reached end of stream
+     */
+    public function copyBytes($bytesCount, MemoryStream $stream)
+    {
+        if ($this->offset + $bytesCount > $this->length) {
+            return false;
+        }
+
+        if ($bytesCount === 1) {
+            $stream->writeString($this->bytes[$this->offset]);
+        } else {
+            $stream->writeString(substr($this->bytes, $this->offset, $bytesCount));
+        }
+
+        $this->offset += $bytesCount;
+        return true;
+    }
+
+    /**
      * @param array $bytes Array of ASCII bytes as integers to write
      */
     public function writeBytes(array $bytes)
