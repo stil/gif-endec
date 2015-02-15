@@ -266,16 +266,25 @@ class Decoder implements DecoderInterface
          * $streamBytes is reference to MemoryStream internal string.
          * We'll append it instead using class methods for far better performance.
          */
-        $streamBytes = &$stream->getPointer();
+        $srcStreamBytes = &$this->stream->getBytesPointer();
+        $srcStreamOffset = &$this->stream->getOffsetPointer();
+        $streamBytes = &$stream->getBytesPointer();
+
+        $fp = fopen("php://memory", "w+");
+        fwrite($fp, $srcStreamBytes);
+        fseek($fp, $srcStreamOffset);
+
         $blockSize = null;
         while (true) {
-            $this->stream->readByte($blockSize);
+            $blockSize = ord(fread($fp, 1));
+            $srcStreamOffset++;
             $streamBytes .= chr($blockSize);
             if ($blockSize == 0x00) {
                 break;
             }
 
-            $this->stream->copyBytes($blockSize, $streamBytes);
+            $streamBytes .= fread($fp, $blockSize);
+            $srcStreamOffset += $blockSize;
         }
 
         /**
@@ -284,13 +293,11 @@ class Decoder implements DecoderInterface
          */
         $stream->seekToEnd();
 
-
         $stream->writeBytes([0x3B]);
 
         /*
          * GIF Data end
          */
-
         $onFrameDecoded = $this->onFrameDecoded;
         $onFrameDecoded($this->currentFrame, $this->frameIndex++);
     }

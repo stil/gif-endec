@@ -48,43 +48,6 @@ class MemoryStream
     }
 
     /**
-     * @param int $buffer Reference to buffer array where read byte will be written
-     * @return bool TRUE if succeeded, FALSE if reached end of stream
-     */
-    public function readByte(&$buffer)
-    {
-        if ($this->offset + 1 > $this->length) {
-            return false;
-        }
-
-        $buffer = ord($this->bytes[$this->offset]);
-
-        $this->offset++;
-        return true;
-    }
-
-    /**
-     * @param int $bytesCount How many bytes to copy
-     * @param string $streamBytes Destination stream
-     * @return bool TRUE if succeeded, FALSE if reached end of stream
-     */
-    public function copyBytes($bytesCount, &$streamBytes)
-    {
-        if ($this->offset + $bytesCount > $this->length) {
-            return false;
-        }
-
-        if ($bytesCount === 1) {
-            $streamBytes .= $this->bytes[$this->offset];
-        } else {
-            $streamBytes .= substr($this->bytes, $this->offset, $bytesCount);
-        }
-
-        $this->offset += $bytesCount;
-        return true;
-    }
-
-    /**
      * @param array $bytes Array of ASCII bytes as integers to write
      */
     public function writeBytes(array $bytes)
@@ -120,7 +83,15 @@ class MemoryStream
     /**
      * @return string Returns reference to internal byte array
      */
-    public function &getPointer()
+    public function &getOffsetPointer()
+    {
+        return $this->offset;
+    }
+
+    /**
+     * @return string Returns reference to internal byte array
+     */
+    public function &getBytesPointer()
     {
         return $this->bytes;
     }
