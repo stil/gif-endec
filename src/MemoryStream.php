@@ -48,20 +48,36 @@ class MemoryStream
     }
 
     /**
-     * @param int $bytesCount How many bytes to copy
-     * @param MemoryStream $stream Destination stream
+     * @param int $buffer Reference to buffer array where read byte will be written
      * @return bool TRUE if succeeded, FALSE if reached end of stream
      */
-    public function copyBytes($bytesCount, MemoryStream $stream)
+    public function readByte(&$buffer)
+    {
+        if ($this->offset + 1 > $this->length) {
+            return false;
+        }
+
+        $buffer = ord($this->bytes[$this->offset]);
+
+        $this->offset++;
+        return true;
+    }
+
+    /**
+     * @param int $bytesCount How many bytes to copy
+     * @param string $streamBytes Destination stream
+     * @return bool TRUE if succeeded, FALSE if reached end of stream
+     */
+    public function copyBytes($bytesCount, &$streamBytes)
     {
         if ($this->offset + $bytesCount > $this->length) {
             return false;
         }
 
         if ($bytesCount === 1) {
-            $stream->writeString($this->bytes[$this->offset]);
+            $streamBytes .= $this->bytes[$this->offset];
         } else {
-            $stream->writeString(substr($this->bytes, $this->offset, $bytesCount));
+            $streamBytes .= substr($this->bytes, $this->offset, $bytesCount);
         }
 
         $this->offset += $bytesCount;
@@ -99,5 +115,21 @@ class MemoryStream
     public function getContents()
     {
         return $this->bytes;
+    }
+
+    /**
+     * @return string Returns reference to internal byte array
+     */
+    public function &getPointer()
+    {
+        return $this->bytes;
+    }
+
+    /**
+     * Sets current position at end
+     */
+    public function seekToEnd()
+    {
+        $this->offset = strlen($this->bytes) - 1;
     }
 }

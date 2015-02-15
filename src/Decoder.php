@@ -257,16 +257,33 @@ class Decoder implements DecoderInterface
         $stream->writeBytes([0x2C]);
         $screen[8] &= 0x40;
         $stream->writeBytes($screen);
-        $this->copyBytes(1, $stream);
+
+        $this->readBytes(1);
+        $stream->writeBytes($this->buffer);
+
+        /**
+         * Magic starts here.
+         * $streamBytes is reference to MemoryStream internal string.
+         * We'll append it instead using class methods for far better performance.
+         */
+        $streamBytes = &$stream->getPointer();
+        $blockSize = null;
         while (true) {
-            $this->readBytes(1);
-            $stream->writeBytes($this->buffer);
-            if (($u = $this->buffer[0]) == 0x00) {
+            $this->stream->readByte($blockSize);
+            $streamBytes .= chr($blockSize);
+            if ($blockSize == 0x00) {
                 break;
             }
 
-            $this->copyBytes($u, $stream);
+            $this->stream->copyBytes($blockSize, $streamBytes);
         }
+
+        /**
+         * Direct modification of internal MemoryStream property won't advance current position.
+         * We'll call this method to do it.
+         */
+        $stream->seekToEnd();
+
 
         $stream->writeBytes([0x3B]);
 
@@ -285,16 +302,6 @@ class Decoder implements DecoderInterface
     protected function readBytes($bytesCount)
     {
         return $this->stream->readBytes($bytesCount, $this->buffer);
-    }
-
-    /**
-     * @param int $bytesCount How many bytes to copy
-     * @param MemoryStream $stream Destination stream
-     * @return bool
-     */
-    protected function copyBytes($bytesCount, MemoryStream $stream)
-    {
-        return $this->stream->copyBytes($bytesCount, $stream);
     }
 
     /**
