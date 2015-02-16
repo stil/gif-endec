@@ -36,7 +36,16 @@ class Renderer
         //$this->framePrevious = $this->cloneGDResource($this->frameCurrent);
         if ($disposalMethod === 1) {
             // Do not dispose
-            imagecopy($this->frameCurrent, $frame->createGDImage(), 0, 0, 0, 0, $this->width, $this->height);
+            imagecopy(
+                $this->frameCurrent,
+                $frame->createGDImage(),
+                $frame->getPositionLeft(),
+                $frame->getPositionTop(),
+                0,
+                0,
+                $frame->getWidth(),
+                $frame->getHeight()
+            );
         } else {
             throw new \RuntimeException("Disposal method $disposalMethod is not implemented.");
         }

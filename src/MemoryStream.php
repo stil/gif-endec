@@ -48,6 +48,22 @@ class MemoryStream
     }
 
     /**
+     * Reads little-endian unsigned 16 bit integer from stream
+     * @return int|bool Decoded integer or FALSE if end of stream
+     */
+    public function readUnsignedShort()
+    {
+        $bytesCount = 2;
+        if ($this->offset + $bytesCount > $this->length) {
+            return false;
+        }
+
+        $bytes = substr($this->bytes, $this->offset, $bytesCount);
+        $this->offset += $bytesCount;
+        return unpack('v', $bytes)[1];
+    }
+
+    /**
      * @param array $bytes Array of ASCII bytes as integers to write
      */
     public function writeBytes(array $bytes)
@@ -97,10 +113,25 @@ class MemoryStream
     }
 
     /**
-     * Sets current position at end
+     * Sets stream position
+     * @param $offset
+     * @param int $whence
+        SEEK_SET - Set position equal to offset bytes.
+        SEEK_CUR - Set position to current location plus offset.
+        SEEK_END - Set position to end-of-file plus offset.
      */
-    public function seekToEnd()
+    public function seek($offset, $whence = SEEK_SET)
     {
-        $this->offset = strlen($this->bytes) - 1;
+        switch ($whence) {
+            case SEEK_SET:
+                $this->offset = $offset;
+                break;
+            case SEEK_CUR:
+                $this->offset += $offset;
+                break;
+            case SEEK_END:
+                $this->offset = strlen($this->bytes) - 1 + $offset;
+                break;
+        }
     }
 }

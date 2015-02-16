@@ -207,12 +207,25 @@ class Decoder implements DecoderInterface
      */
     protected function readImageDescriptor()
     {
+        $this->currentFrame->setPosition(
+            $this->stream->readUnsignedShort(),
+            $this->stream->readUnsignedShort()
+        );
+
+        $this->currentFrame->setSize(
+            $this->stream->readUnsignedShort(),
+            $this->stream->readUnsignedShort()
+        );
+
+        $this->stream->seek(-8, SEEK_CUR);
+
         $this->readBytes(9);
         $screen = $this->buffer;
-        $gctFlag = $this->buffer[8] & 0x80 ? 1 : 0;
+
+        $gctFlag = $screen[8] & 0x80 ? 1 : 0;
         if ($gctFlag) {
-            $code = $this->buffer[8] & 0x07;
-            $sort = $this->buffer[8] & 0x20 ? 1 : 0;
+            $code = $screen[8] & 0x07;
+            $sort = $screen[8] & 0x20 ? 1 : 0;
         } else {
             $code = $this->gctSize;
             $sort = $this->sortFlag;
@@ -291,8 +304,7 @@ class Decoder implements DecoderInterface
          * Direct modification of internal MemoryStream property won't advance current position.
          * We'll call this method to do it.
          */
-        $stream->seekToEnd();
-
+        $stream->seek(0, SEEK_END);
         $stream->writeBytes([0x3B]);
 
         /*

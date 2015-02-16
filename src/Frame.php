@@ -24,16 +24,95 @@ class Frame
      */
     protected $disposalMethod;
 
+    /* @var int */
+    protected $posLeft;
+
+    /* @var int */
+    protected $posTop;
+
+    /* @var int */
+    protected $width;
+
+    /* @var int */
+    protected $height;
+
+
     public function __construct()
     {
         $this->stream = new MemoryStream();
     }
 
+    /**
+     * @param int $left
+     * @param int $top
+     */
+    public function setPosition($left, $top)
+    {
+        $this->posLeft = $left;
+        $this->posTop = $top;
+    }
+
+    /**
+     * @param int $width
+     * @param int $height
+     */
+    public function setSize($width, $height)
+    {
+        $this->width = $width;
+        $this->height = $height;
+    }
+
+    /**
+     * @return int
+     */
+    public function getWidth()
+    {
+        return $this->width;
+    }
+
+    /**
+     * @return int
+     */
+    public function getHeight()
+    {
+        return $this->height;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPositionLeft()
+    {
+        return $this->posLeft;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPositionTop()
+    {
+        return $this->posTop;
+    }
+
+    /**
+     * @param MemoryStream $stream
+     */
+    public function setStream(MemoryStream $stream)
+    {
+        $this->stream  = $stream;
+    }
+
+    /**
+     * @return MemoryStream
+     */
     public function getStream()
     {
         return $this->stream;
     }
 
+    /**
+     * @return resource
+     */
     public function createGDImage()
     {
         return imagecreatefromstring($this->stream->getContents());
