@@ -18,10 +18,17 @@ class MemoryStream
      */
     protected $offset = 0;
 
+    /**
+     * @var resource
+     */
+    protected $phpStream;
+
     public function __construct($bytes = "")
     {
         $this->bytes = $bytes;
         $this->length = strlen($bytes);
+        $this->phpStream = fopen("php://memory", "w+");
+        fwrite($this->phpStream, $bytes);
     }
 
     /**
@@ -110,6 +117,14 @@ class MemoryStream
     public function &getBytesPointer()
     {
         return $this->bytes;
+    }
+
+    /**
+     * @return resource
+     */
+    public function getPhpStream()
+    {
+        return $this->phpStream;
     }
 
     /**

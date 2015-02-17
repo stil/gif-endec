@@ -276,22 +276,22 @@ class Decoder implements DecoderInterface
 
         /**
          * Magic starts here.
-         * $streamBytes is reference to MemoryStream internal string.
+         * $streamBytes is reference to MemoryStream internal string (byte array).
          * We'll append it instead using class methods for far better performance.
          */
-        $srcStreamBytes = &$this->stream->getBytesPointer();
         $srcStreamOffset = &$this->stream->getOffsetPointer();
         $streamBytes = &$stream->getBytesPointer();
 
-        $fp = fopen("php://memory", "w+");
-        fwrite($fp, $srcStreamBytes);
+        $fp = $this->stream->getPhpStream();
         fseek($fp, $srcStreamOffset);
 
         $blockSize = null;
+        $blockSizeRaw = null;
         while (true) {
-            $blockSize = ord(fread($fp, 1));
+            $blockSizeRaw = fread($fp, 1);
+            $blockSize = ord($blockSizeRaw);
             $srcStreamOffset++;
-            $streamBytes .= chr($blockSize);
+            $streamBytes .= $blockSizeRaw;
             if ($blockSize == 0x00) {
                 break;
             }
