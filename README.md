@@ -32,7 +32,8 @@ use GIFEndec\Frame;
 /**
  * Load GIF to MemoryStream
  */
-$gifStream = new MemoryStream(file_get_contents("path/to/animation.gif"));
+$gifStream = new MemoryStream();
+$gifStream->loadFromFile("path/to/animation.gif");
 
 /**
  * Create Decoder instance from MemoryStream
@@ -66,11 +67,11 @@ $gifDecoder->decode(function (Frame $frame, $index) {
 The result frames will be written to directory:
 ![](http://i.imgur.com/NLwHdo4.png)
 
-###Render animated GIFs' frames with transparency
+###Render animated GIFs' frames
 If your GIF is saved using transparency, some frames might look like this:
 ![](http://i.imgur.com/NIJGVnw.png)
 
-In following example you'll see how to render transparent frames, so they look "normal".
+In following example you'll see how to render GIF frames.
 ```php
 <?php
 require __DIR__.'/../vendor/autoload.php';
@@ -83,7 +84,8 @@ use GIFEndec\Renderer;
 /**
  * Load GIF to MemoryStream
  */
-$gifStream = new MemoryStream(file_get_contents("path/to/animation.gif"));
+$gifStream = new MemoryStream();
+$gifStream->loadFromFile("path/to/animation.gif");
 
 /**
  * Create Decoder instance from MemoryStream
@@ -93,22 +95,19 @@ $gifDecoder = new Decoder($gifStream);
 /**
  * Create Renderer instance
  */
-$gifRenderer = new Renderer();
+$gifRenderer = new Renderer($gifDecoder);
 
 /**
  * Run decoder. Pass callback function to process decoded Frames when they're ready.
  */
-$gifDecoder->decode(function (Frame $frame, $index) use ($gifRenderer) {
+$gifRenderer->start(function ($gdResource, $index) {
     /**
-     * render() returns GD image resource. See http://php.net/manual/en/book.image.php
+     * $gdResource is a GD image resource. See http://php.net/manual/en/book.image.php
      */
-    $im = $gifRenderer->render($frame);
     
     /**
      * Write frame images to directory
      */
-    imagepng($gd, __DIR__."/frames/frame{$index}.png");
+    imagepng($gdResource, __DIR__."/frames/frame{$index}.png");
 });
 ```
-
-
