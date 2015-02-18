@@ -6,46 +6,44 @@ class Renderer
     /**
      * @var resource
      */
-    protected $framePrevious = null;
-
-    /**
-     * @var resource
-     */
     protected $frameCurrent = null;
 
     /**
-     * @var int
+     * @param Decoder $decoder
      */
-    protected $width;
+    public function __construct(Decoder $decoder)
+    {
+        $this->decoder = $decoder;
+    }
 
     /**
-     * @var int
+     * @param callable $onFrameRendered
      */
-    protected $height;
-
-    public function render(Frame $frame)
+    public function start(callable $onFrameRendered)
     {
-        if ($this->frameCurrent === null) {
-            $this->frameCurrent = $frame->createGDImage();
-            $this->width = imagesx($this->frameCurrent);
-            $this->height = imagesy($this->frameCurrent);
-            return $this->frameCurrent;
+        $this->decoder->decode(function (Frame $frame, $index) use ($onFrameRendered) {
+            $onFrameRendered($this->render($frame, $index), $index);
+        });
+    }
+
+    /**
+     * @param Frame $frame
+     * @param $index
+     * @return resource
+     */
+    protected function render(Frame $frame, $index)
+    {
+        if ($index == 0) {
+            $screenSize = $this->decoder->getScreenSize();
+            $this->frameCurrent = imagecreatetruecolor(
+                $screenSize->getWidth(),
+                $screenSize->getHeight()
+            );
         }
 
         $disposalMethod = $frame->getDisposalMethod();
-        //$this->framePrevious = $this->cloneGDResource($this->frameCurrent);
-        if ($disposalMethod === 1) {
-            // Do not dispose
-            imagecopy(
-                $this->frameCurrent,
-                $frame->createGDImage(),
-                $frame->getPositionLeft(),
-                $frame->getPositionTop(),
-                0,
-                0,
-                $frame->getWidth(),
-                $frame->getHeight()
-            );
+        if ($disposalMethod === 0 || $disposalMethod === 1) {
+            $this->copyFrameToBuffer($frame);
         } else {
             throw new \RuntimeException("Disposal method $disposalMethod is not implemented.");
         }
@@ -53,19 +51,20 @@ class Renderer
         return $this->frameCurrent;
     }
 
-    private function cloneGDResource($old)
+    /**
+     * @param Frame $frame
+     */
+    protected function copyFrameToBuffer(Frame $frame)
     {
-        $palletSize = imagecolorstotal($old);
-        $transparentIndex = imagecolortransparent($old);
-
-        $im = imagecreate($this->width, $this->height);
-        if ($transparentIndex >= 0 && $transparentIndex < $palletSize) {
-            $rgb = imagecolorsforindex($old, $transparentIndex);
-            imagesavealpha($im, true);
-            $trans_index = imagecolorallocatealpha($im, $rgb['red'], $rgb['green'], $rgb['blue'], $rgb['alpha']);
-            imagefill($im, 0, 0, $trans_index);
-        }
-        imagecopy($im, $old, 0, 0, 0, 0, $this->width, $this->height);
-        return $im;
+        imagecopy(
+            $this->frameCurrent,
+            $frame->createGDImage(),
+            $frame->getOffset()->getX(),
+            $frame->getOffset()->getY(),
+            0,
+            0,
+            $frame->getSize()->getWidth(),
+            $frame->getSize()->getHeight()
+        );
     }
 }
