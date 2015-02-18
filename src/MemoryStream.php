@@ -9,65 +9,35 @@ class MemoryStream
     protected $bytes;
 
     /**
-     * @var int Length of bytes array
-     */
-    protected $length;
-
-    /**
-     * @var int Current stream position
-     */
-    protected $offset = 0;
-
-    /**
      * @var resource
      */
     protected $phpStream;
 
-    public function __construct($bytes = "")
+    public function __construct()
     {
-        $this->bytes = $bytes;
-        $this->length = strlen($bytes);
         $this->phpStream = fopen("php://memory", "w+");
-        fwrite($this->phpStream, $bytes);
+    }
+
+    public function loadFromFile($path)
+    {
+        $this->phpStream = fopen($path, 'r');
+        stream_set_read_buffer($this->phpStream, 1024*1024);
+        $this->seek(0);
     }
 
     /**
      * @param int $bytesCount How many bytes to read
      * @param array $buffer Reference to buffer array where read bytes will be written
-     * @return bool TRUE if succeeded, FALSE if reached end of stream
      */
     public function readBytes($bytesCount, &$buffer)
     {
-        if ($this->offset + $bytesCount > $this->length) {
-            return false;
-        }
-
         if ($bytesCount === 1) {
-            $buffer = [ord($this->bytes[$this->offset])];
+            $buffer = [ord(fread($this->phpStream, 1))];
         } else {
             // microptimizations
-            $bytes = substr($this->bytes, $this->offset, $bytesCount);
+            $bytes = fread($this->phpStream, $bytesCount);
             $buffer = array_values(unpack('C*', $bytes));
         }
-
-        $this->offset += $bytesCount;
-        return true;
-    }
-
-    /**
-     * Reads little-endian unsigned 16 bit integer from stream
-     * @return int|bool Decoded integer or FALSE if end of stream
-     */
-    public function readUnsignedShort()
-    {
-        $bytesCount = 2;
-        if ($this->offset + $bytesCount > $this->length) {
-            return false;
-        }
-
-        $bytes = substr($this->bytes, $this->offset, $bytesCount);
-        $this->offset += $bytesCount;
-        return unpack('v', $bytes)[1];
     }
 
     /**
@@ -77,13 +47,10 @@ class MemoryStream
     {
         $count = count($bytes);
         if ($count == 1) {
-            $this->bytes .= chr($bytes[0]);
+            fwrite($this->phpStream, chr($bytes[0]));
         } else {
-            // microptimizations
-            $this->bytes .= call_user_func_array("pack", array_merge(["C*"], $bytes));
+            fwrite($this->phpStream, call_user_func_array("pack", array_merge(["C*"], $bytes)));
         }
-
-        $this->offset += $count;
     }
 
     /**
@@ -91,8 +58,7 @@ class MemoryStream
      */
     public function writeString($str)
     {
-        $this->bytes .= $str;
-        $this->offset += strlen($str);
+        fwrite($this->phpStream, $str);
     }
 
     /**
@@ -100,23 +66,8 @@ class MemoryStream
      */
     public function getContents()
     {
-        return $this->bytes;
-    }
-
-    /**
-     * @return string Returns reference to internal byte array
-     */
-    public function &getOffsetPointer()
-    {
-        return $this->offset;
-    }
-
-    /**
-     * @return string Returns reference to internal byte array
-     */
-    public function &getBytesPointer()
-    {
-        return $this->bytes;
+        $this->seek(0);
+        return stream_get_contents($this->phpStream);
     }
 
     /**
@@ -137,16 +88,14 @@ class MemoryStream
      */
     public function seek($offset, $whence = SEEK_SET)
     {
-        switch ($whence) {
-            case SEEK_SET:
-                $this->offset = $offset;
-                break;
-            case SEEK_CUR:
-                $this->offset += $offset;
-                break;
-            case SEEK_END:
-                $this->offset = strlen($this->bytes) - 1 + $offset;
-                break;
-        }
+        fseek($this->phpStream, $offset, $whence);
+    }
+
+    /**
+     * @return bool TRUE if stream reached EOF, FALSE otherwise
+     */
+    public function hasReachedEOF()
+    {
+        return feof($this->phpStream);
     }
 }

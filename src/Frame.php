@@ -1,6 +1,9 @@
 <?php
 namespace GIFEndec;
 
+use GIFEndec\Geometry\Point;
+use GIFEndec\Geometry\Rectangle;
+
 class Frame
 {
     /**
@@ -24,74 +27,81 @@ class Frame
      */
     protected $disposalMethod;
 
-    /* @var int */
-    protected $posLeft;
+    /**
+     * @var bool
+     */
+    protected $isTransparent;
 
-    /* @var int */
-    protected $posTop;
+    /**
+     * @var Color
+     */
+    protected $transparentColor;
 
-    /* @var int */
-    protected $width;
+    /**
+     * @var Rectangle
+     */
+    protected $size;
 
-    /* @var int */
-    protected $height;
-
+    /**
+     * @var Point
+     */
+    protected $offset;
 
     public function __construct()
     {
         $this->stream = new MemoryStream();
     }
 
-    /**
-     * @param int $left
-     * @param int $top
-     */
-    public function setPosition($left, $top)
+    public function setTransparentColor(Color $color)
     {
-        $this->posLeft = $left;
-        $this->posTop = $top;
+        $this->transparentColor = $color;
+    }
+
+    public function isTransparent()
+    {
+        return $this->isTransparent;
+    }
+
+    public function setTransparent($bool)
+    {
+        $this->isTransparent = $bool;
+    }
+
+    public function getTransparentColor()
+    {
+        return $this->transparentColor;
     }
 
     /**
-     * @param int $width
-     * @param int $height
+     * @param Rectangle $rectangle
      */
-    public function setSize($width, $height)
+    public function setSize(Rectangle $rectangle)
     {
-        $this->width = $width;
-        $this->height = $height;
+        $this->size = $rectangle;
     }
 
     /**
-     * @return int
+     * @return Rectangle
      */
-    public function getWidth()
+    public function getSize()
     {
-        return $this->width;
+        return $this->size;
     }
 
     /**
-     * @return int
+     * @param Point $offset
      */
-    public function getHeight()
+    public function setOffset(Point $offset)
     {
-        return $this->height;
+        $this->offset = $offset;
     }
 
     /**
-     * @return int
+     * @return Point
      */
-    public function getPositionLeft()
+    public function getOffset()
     {
-        return $this->posLeft;
-    }
-
-    /**
-     * @return int
-     */
-    public function getPositionTop()
-    {
-        return $this->posTop;
+        return $this->offset;
     }
 
     /**
