@@ -18,7 +18,7 @@ Install this package with Composer.
 
 ###Split animated GIF into frames
 In this example we'll split this animated GIF into separate frames.
-![](https://raw.githubusercontent.com/stil/gif-endec/master/tests/gifs/test1.gif)
+![](https://i.imgur.com/QWFJQR2.gif)
 
 
 ```php
