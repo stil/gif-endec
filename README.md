@@ -52,10 +52,11 @@ $gifDecoder->decode(function (Frame $frame, $index) {
     /**
      * Write frame images to directory
      */
-    file_put_contents(
-        __DIR__."/frames/frame{$paddedIndex}.gif",
-        $frame->getStream()->getContents()
+    $frame->getStream()->copyContentsToFile(
+        __DIR__."/frames/frame{$paddedIndex}.gif"
     );
+    // Or get binary data as string:
+    // $frame->getStream()->getContents()
     
     /**
      * You can access frame duration using Frame::getDuration() method, ex.:
