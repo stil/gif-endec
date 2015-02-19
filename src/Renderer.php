@@ -9,6 +9,11 @@ class Renderer
     protected $frameCurrent = null;
 
     /**
+     * @var Frame
+     */
+    protected $framePrevious = null;
+
+    /**
      * @param Decoder $decoder
      */
     public function __construct(Decoder $decoder)
@@ -35,19 +40,32 @@ class Renderer
     {
         if ($index == 0) {
             $screenSize = $this->decoder->getScreenSize();
-            $this->frameCurrent = imagecreatetruecolor(
-                $screenSize->getWidth(),
-                $screenSize->getHeight()
-            );
+            $im = imagecreatetruecolor($screenSize->getWidth(), $screenSize->getHeight());
+            imagealphablending($im, false);
+            imagesavealpha($im, true);
+
+            $transColor = imagecolortransparent($im, imagecolorallocatealpha($im, 255, 255, 255, 127));
+            imagefill($im, 0, 0, $transColor);
+
+            $this->frameCurrent = $im;
+            $this->framePrevious = $frame;
+            $this->copyFrameToBuffer($frame);
+
+            return $this->frameCurrent;
         }
 
-        $disposalMethod = $frame->getDisposalMethod();
+        imagepalettetotruecolor($this->frameCurrent);
+        $disposalMethod = $this->framePrevious->getDisposalMethod();
         if ($disposalMethod === 0 || $disposalMethod === 1) {
+            $this->copyFrameToBuffer($frame);
+        } elseif ($disposalMethod === 2) {
+            $this->restoreToBackground($this->framePrevious, imagecolortransparent($this->frameCurrent));
             $this->copyFrameToBuffer($frame);
         } else {
             throw new \RuntimeException("Disposal method $disposalMethod is not implemented.");
         }
 
+        $this->framePrevious = $frame;
         return $this->frameCurrent;
     }
 
@@ -65,6 +83,25 @@ class Renderer
             0,
             $frame->getSize()->getWidth(),
             $frame->getSize()->getHeight()
+        );
+    }
+
+    /**
+     * @param Frame $frame
+     * @param int $backgroundColor
+     */
+    protected function restoreToBackground(Frame $frame, $backgroundColor)
+    {
+        $offset = $frame->getOffset();
+        $size = $frame->getSize();
+
+        imagefilledrectangle(
+            $this->frameCurrent,
+            $offset->getX(),
+            $offset->getY(),
+            $offset->getX() + $size->getWidth() - 1,
+            $offset->getY() + $size->getHeight() - 1,
+            $backgroundColor
         );
     }
 }
