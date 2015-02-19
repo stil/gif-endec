@@ -3,20 +3,20 @@ namespace GIFEndec\Tests;
 
 use GIFEndec\Decoder;
 use GIFEndec\MemoryStream;
-use GIFEndec\Frame;
+use GIFEndec\Renderer;
 
-class DecoderTest extends TestCase
+class RendererTest extends TestCase
 {
-    public function testDecode()
+    public function testRender()
     {
         for ($i = 1; $i <= 6; $i++) {
-            $this->decode("test$i");
+            $this->render("test$i");
         }
     }
 
-    protected function decode($name)
+    protected function render($name)
     {
-        $action = "split";
+        $action = "render";
         $animation = __DIR__."/gifs/$name.gif";
         $checksumPath = __DIR__."/gifs/$name.$action.json";
         $dir = __DIR__."/output/$action/$name";
@@ -26,17 +26,18 @@ class DecoderTest extends TestCase
         $hasChecksums = $this->loadChecksums($checksumPath, $checksums);
         $this->createDirOrClear($dir);
 
-
         $stream = new MemoryStream();
         $stream->loadFromFile($animation);
         $decoder = new Decoder($stream);
-        $decoder->decode(function (Frame $frame, $index) use (&$checksums, $hasChecksums, &$frameCount, $name, $dir) {
+        $renderer = new Renderer($decoder);
+        $renderer->start(function ($gd, $index) use (&$checksums, $hasChecksums, &$frameCount, $name, $dir) {
             $frameCount++;
             $paddedIndex = str_pad($index, 3, '0', STR_PAD_LEFT);
 
-            $frame->getStream()->copyContentsToFile("$dir/frame{$paddedIndex}.gif");
+            $outputPath = "$dir/frame{$paddedIndex}.png";
+            imagepng($gd, $outputPath, 4, PNG_ALL_FILTERS);
 
-            $checksum = sha1($frame->getStream()->getContents());
+            $checksum = sha1(file_get_contents($outputPath));
             if ($hasChecksums) {
                 $this->assertEquals($checksum, $checksums[$index]);
             }
