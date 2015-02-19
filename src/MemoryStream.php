@@ -71,6 +71,17 @@ class MemoryStream
     }
 
     /**
+     * @param string $path
+     */
+    public function copyContentsToFile($path)
+    {
+        $fp = fopen($path, 'w');
+        $this->seek(0);
+        stream_copy_to_stream($this->phpStream, $fp);
+        fclose($fp);
+    }
+
+    /**
      * @return resource
      */
     public function getPhpStream()
