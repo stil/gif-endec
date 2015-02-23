@@ -15,7 +15,7 @@ class MemoryStream
 
     public function __construct()
     {
-        $this->phpStream = fopen("php://memory", "w+");
+        $this->phpStream = fopen("php://memory", "wb+");
     }
 
     public function loadFromFile($path)
