@@ -22,4 +22,16 @@ class Color
      * @var int Blue component
      */
     public $blue = -1;
+
+    /**
+     * @param int $red
+     * @param int $green
+     * @param int $blue
+     */
+    public function __construct($red, $green, $blue)
+    {
+        $this->red = $red;
+        $this->green = $green;
+        $this->blue = $blue;
+    }
 }
