@@ -214,7 +214,7 @@ class Decoder implements DecoderInterface
                 );
 
                 if ($this->currentFrame->isTransparent()) {
-                    $color = new Color();
+                    $color = new Color(-1, -1, -1);
                     $color->index = $this->buffer[3];
                     $this->currentFrame->setTransparentColor($color);
                 }
