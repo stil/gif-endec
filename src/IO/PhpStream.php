@@ -58,7 +58,7 @@ abstract class PhpStream
      */
     public function copyContentsToFile($path)
     {
-        $fp = fopen($path, 'w');
+        $fp = fopen($path, 'wb');
         $this->seek(0);
         stream_copy_to_stream($this->phpStream, $fp);
         fclose($fp);
