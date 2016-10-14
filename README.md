@@ -7,12 +7,8 @@ Thanks to some code optimizations, this library decodes animated GIFs much faste
 
 ###Installation
 Install this package with Composer.
-```json
-{
-    "require": {
-        "stil/gif-endec": "*"
-    }
-}
+```bash
+composer require stil/gif-endec
 ```
 
 Split animated GIF into frames
