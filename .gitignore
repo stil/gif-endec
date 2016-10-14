@@ -1,4 +1,4 @@
-tests/output/*
+tests/Resources/output
 tests/gifs/*.gif
 
 # Created by .ignore support plugin (hsz.mobi)
@@ -58,3 +58,5 @@ atlassian-ide-plugin.xml
 com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
+
+composer.lock

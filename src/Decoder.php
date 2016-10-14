@@ -1,13 +1,15 @@
 <?php
 namespace GIFEndec;
 
+use GIFEndec\Events\FrameDecodedEvent;
 use GIFEndec\Geometry\Point;
 use GIFEndec\Geometry\Rectangle;
+use GIFEndec\IO\PhpStream;
 
-class Decoder implements DecoderInterface
+class Decoder
 {
     /**
-     * @var MemoryStream
+     * @var PhpStream
      */
     protected $stream;
 
@@ -68,9 +70,9 @@ class Decoder implements DecoderInterface
     protected $sortFlag;
 
     /**
-     * @param MemoryStream $gifStream
+     * @param PhpStream $gifStream
      */
-    public function __construct(MemoryStream $gifStream)
+    public function __construct(PhpStream $gifStream)
     {
         $this->stream = $gifStream;
     }
@@ -95,7 +97,11 @@ class Decoder implements DecoderInterface
                         break;
                     case 0x2C:
                         $this->readImageDescriptor();
-                        $onFrameDecoded($this->currentFrame, $frameIndex++);
+
+                        $event = new FrameDecodedEvent();
+                        $event->frameIndex = $frameIndex++;
+                        $event->decodedFrame = $this->currentFrame;
+                        $onFrameDecoded($event);
                         break;
                     case 0x3B:
                         $cycle = false;
@@ -317,7 +323,6 @@ class Decoder implements DecoderInterface
 
     /**
      * @param int $bytesCount How many bytes to read
-     * @return bool
      */
     protected function readBytes($bytesCount)
     {

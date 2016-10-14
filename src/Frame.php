@@ -3,11 +3,13 @@ namespace GIFEndec;
 
 use GIFEndec\Geometry\Point;
 use GIFEndec\Geometry\Rectangle;
+use GIFEndec\IO\MemoryStream;
+use GIFEndec\IO\PhpStream;
 
 class Frame
 {
     /**
-     * @var MemoryStream Stream storing GIF byte array
+     * @var PhpStream Stream storing GIF byte array
      */
     protected $stream;
 
@@ -105,15 +107,15 @@ class Frame
     }
 
     /**
-     * @param MemoryStream $stream
+     * @param PhpStream $stream
      */
-    public function setStream(MemoryStream $stream)
+    public function setStream(PhpStream $stream)
     {
         $this->stream  = $stream;
     }
 
     /**
-     * @return MemoryStream
+     * @return PhpStream
      */
     public function getStream()
     {

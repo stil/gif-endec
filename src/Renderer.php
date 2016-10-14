@@ -1,6 +1,9 @@
 <?php
 namespace GIFEndec;
 
+use GIFEndec\Events\FrameDecodedEvent;
+use GIFEndec\Events\FrameRenderedEvent;
+
 class Renderer
 {
     /**
@@ -26,8 +29,12 @@ class Renderer
      */
     public function start(callable $onFrameRendered)
     {
-        $this->decoder->decode(function (Frame $frame, $index) use ($onFrameRendered) {
-            $onFrameRendered($this->render($frame, $index), $index);
+        $this->decoder->decode(function (FrameDecodedEvent $e) use ($onFrameRendered) {
+            $event = new FrameRenderedEvent();
+            $event->frameIndex = $e->frameIndex;
+            $event->decodedFrame = $e->decodedFrame;
+            $event->renderedFrame = $this->render($e->decodedFrame, $e->frameIndex);
+            $onFrameRendered($event);
         });
     }
 
