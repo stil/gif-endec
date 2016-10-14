@@ -4,7 +4,7 @@ namespace GIFEndec;
 use GIFEndec\Geometry\Point;
 use GIFEndec\Geometry\Rectangle;
 
-class Decoder implements DecoderInterface
+class Decoder
 {
     /**
      * @var MemoryStream
