@@ -323,7 +323,6 @@ class Decoder
 
     /**
      * @param int $bytesCount How many bytes to read
-     * @return bool
      */
     protected function readBytes($bytesCount)
     {

@@ -137,8 +137,7 @@ class Encoder
         if ($tcolor instanceof Color && $localPackedFields & 0x80) {
             // Look for transparent color in Global Color Table
             for ($j = 0; $j < $localColorTableSize / 3; $j++) {
-                if (
-                    ord($localColorTable[3 * $j + 0]) == ($tcolor->red   & 0xFF) &&
+                if (ord($localColorTable[3 * $j + 0]) == ($tcolor->red   & 0xFF) &&
                     ord($localColorTable[3 * $j + 1]) == ($tcolor->green & 0xFF) &&
                     ord($localColorTable[3 * $j + 2]) == ($tcolor->blue  & 0xFF)
                 ) {
@@ -189,8 +188,6 @@ class Encoder
         }
 
         $this->output->writeString($imgData);
-
-        // ADD FRAMES END //
 
         $this->frameIndex++;
     }
