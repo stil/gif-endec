@@ -2,48 +2,51 @@
 namespace GIFEndec\Tests;
 
 use GIFEndec\Decoder;
-use GIFEndec\MemoryStream;
+use GIFEndec\Events\FrameRenderedEvent;
+use GIFEndec\IO\FileStream;
+use GIFEndec\IO\MemoryStream;
 use GIFEndec\Renderer;
+use GIFEndec\Tests\Resources\Sample;
+use GIFEndec\Tests\Resources\SampleCollection;
 
 class RendererTest extends TestCase
 {
     public function testRender()
     {
-        for ($i = 1; $i <= 6; $i++) {
-            $this->render("test$i");
+        $samples = new SampleCollection();
+        foreach ($samples->read() as $sample) {
+            $this->render($sample);
         }
     }
 
-    protected function render($name)
+    protected function render(Sample $sample)
     {
-        $action = "render";
-        $animation = __DIR__."/gifs/$name.gif";
-        $checksumPath = __DIR__."/gifs/$name.$action.json";
-        $dir = __DIR__."/output/$action/$name";
-
         $frameCount = 0;
         $checksums = [];
-        $hasChecksums = $this->loadChecksums($checksumPath, $checksums);
-        $this->createDirOrClear($dir);
 
-        $stream = new MemoryStream();
-        $stream->loadFromFile($animation);
+        $dir = $sample->emptyRenderedFramesDir();
+
+        $stream = new FileStream($sample->localPath());
         $decoder = new Decoder($stream);
         $renderer = new Renderer($decoder);
-        $renderer->start(function ($gd, $index) use (&$checksums, $hasChecksums, &$frameCount, $name, $dir) {
+
+        $renderer->start(function (FrameRenderedEvent $event) use (&$checksums, &$frameCount, $dir, $sample) {
             $frameCount++;
-            $paddedIndex = str_pad($index, 3, '0', STR_PAD_LEFT);
 
-            $outputPath = "$dir/frame{$paddedIndex}.png";
-            imagepng($gd, $outputPath, 4, PNG_ALL_FILTERS);
+            $stream = new MemoryStream();
+            ob_start();
+            imagepng($event->renderedFrame, null, 4, PNG_ALL_FILTERS);
+            $stream->writeString(ob_get_contents());
+            ob_end_clean();
 
-            $checksum = sha1(file_get_contents($outputPath));
-            if ($hasChecksums) {
-                $this->assertEquals($checksum, $checksums[$index]);
-            }
-            $checksums[$index] = $checksum;
+            //$paddedIndex = str_pad($event->frameIndex, 3, '0', STR_PAD_LEFT);
+            //$stream->copyContentsToFile("$dir/frame{$paddedIndex}.gif");
+
+            $checksum = sha1($stream->getContents());
+            $this->assertEquals($checksum, $sample->getFrameRenderedSHA1($event->frameIndex));
+            $checksums[$event->frameIndex] = $checksum;
         });
 
-        file_put_contents("$dir/$name.$action.json", json_encode($checksums, JSON_PRETTY_PRINT));
+        file_put_contents("$dir/_sha1.json", json_encode($checksums, JSON_PRETTY_PRINT));
     }
 }
