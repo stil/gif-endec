@@ -27,7 +27,7 @@ class Renderer
     public function start(callable $onFrameRendered)
     {
         $this->decoder->decode(function (Frame $frame, $index) use ($onFrameRendered) {
-            $onFrameRendered($this->render($frame, $index), $index);
+            $onFrameRendered($frame, $this->render($frame, $index), $index);
         });
     }
 
