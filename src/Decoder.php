@@ -3,11 +3,12 @@ namespace GIFEndec;
 
 use GIFEndec\Geometry\Point;
 use GIFEndec\Geometry\Rectangle;
+use GIFEndec\IO\PhpStream;
 
 class Decoder
 {
     /**
-     * @var MemoryStream
+     * @var PhpStream
      */
     protected $stream;
 
@@ -68,9 +69,9 @@ class Decoder
     protected $sortFlag;
 
     /**
-     * @param MemoryStream $gifStream
+     * @param PhpStream $gifStream
      */
-    public function __construct(MemoryStream $gifStream)
+    public function __construct(PhpStream $gifStream)
     {
         $this->stream = $gifStream;
     }

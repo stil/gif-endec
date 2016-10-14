@@ -1,6 +1,8 @@
 <?php
 namespace GIFEndec;
 
+use GIFEndec\IO\MemoryStream;
+
 class Encoder
 {
     /**
