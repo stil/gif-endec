@@ -19,17 +19,16 @@ In this example we'll split this animated GIF into separate frames.
 
 ```php
 <?php
-require __DIR__.'/../vendor/autoload.php';
+require __DIR__ . '/../vendor/autoload.php';
 
-use GIFEndec\MemoryStream;
+use GIFEndec\Events\FrameDecodedEvent;
+use GIFEndec\IO\FileStream;
 use GIFEndec\Decoder;
-use GIFEndec\Frame;
 
 /**
- * Load GIF to MemoryStream
+ * Open GIF as FileStream
  */
-$gifStream = new MemoryStream();
-$gifStream->loadFromFile("path/to/animation.gif");
+$gifStream = new FileStream("path/to/animation.gif");
 
 /**
  * Create Decoder instance from MemoryStream
@@ -39,26 +38,27 @@ $gifDecoder = new Decoder($gifStream);
 /**
  * Run decoder. Pass callback function to process decoded Frames when they're ready.
  */
-$gifDecoder->decode(function (Frame $frame, $index) {
+$gifDecoder->decode(function (FrameDecodedEvent $event) {
     /**
      * Convert frame index to zero-padded strings (001, 002, 003)
      */
-    $paddedIndex = str_pad($index, 3, '0', STR_PAD_LEFT);
-    
+    $paddedIndex = str_pad($event->frameIndex, 3, '0', STR_PAD_LEFT);
+
     /**
      * Write frame images to directory
      */
-    $frame->getStream()->copyContentsToFile(
-        __DIR__."/frames/frame{$paddedIndex}.gif"
+    $event->decodedFrame->getStream()->copyContentsToFile(
+        __DIR__ . "/frames/frame{$paddedIndex}.gif"
     );
     // Or get binary data as string:
     // $frame->getStream()->getContents()
-    
+
     /**
      * You can access frame duration using Frame::getDuration() method, ex.:
      */
-     echo $frame->getDuration()."\n";
+    echo $event->decodedFrame->getDuration() . "\n";
 });
+
 ```
 
 The result frames will be written to directory:
@@ -71,18 +71,17 @@ If your GIF is saved using transparency, some frames might look like this:
 In following example you'll see how to render GIF frames.
 ```php
 <?php
-require __DIR__.'/../vendor/autoload.php';
+require __DIR__ . '/../vendor/autoload.php';
 
-use GIFEndec\MemoryStream;
+use GIFEndec\Events\FrameRenderedEvent;
+use GIFEndec\IO\FileStream;
 use GIFEndec\Decoder;
-use GIFEndec\Frame;
 use GIFEndec\Renderer;
 
 /**
- * Load GIF to MemoryStream
+ * Open GIF as FileStream
  */
-$gifStream = new MemoryStream();
-$gifStream->loadFromFile("path/to/animation.gif");
+$gifStream = new FileStream("path/to/animation.gif");
 
 /**
  * Create Decoder instance from MemoryStream
@@ -97,15 +96,15 @@ $gifRenderer = new Renderer($gifDecoder);
 /**
  * Run decoder. Pass callback function to process decoded Frames when they're ready.
  */
-$gifRenderer->start(function ($gdResource, $index) {
+$gifRenderer->start(function (FrameRenderedEvent $event) {
     /**
      * $gdResource is a GD image resource. See http://php.net/manual/en/book.image.php
      */
-    
+
     /**
      * Write frame images to directory
      */
-    imagepng($gdResource, __DIR__."/frames/frame{$index}.png");
+    imagepng($event->renderedFrame, __DIR__ . "/frames/frame{$event->frameIndex}.png");
 });
 ```
 
@@ -119,13 +118,12 @@ We already have splitted frames in `skateboarder/frame*.gif` directory.
 use GIFEndec\Color;
 use GIFEndec\Encoder;
 use GIFEndec\Frame;
-use GIFEndec\MemoryStream;
+use GIFEndec\IO\FileStream;
 
 $gif = new Encoder();
 
 foreach (glob('skateboarder/frame*.gif') as $file) {
-    $stream = new MemoryStream();
-    $stream->loadFromFile($file);
+    $stream = new FileStream($file);
     $frame = new Frame();
     $frame->setDisposalMethod(1);
     $frame->setStream($stream);
