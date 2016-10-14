@@ -446,7 +446,7 @@
         ]
     },
     "huge_gif": {
-        "enabled": true,
+        "enabled": false,
         "url": "https://i.imgur.com/a6u20G3.gif",
         "frames_raw_sha1": [
             "2efad51d44213e049d8e2c67a3c620776bbb4b96",
