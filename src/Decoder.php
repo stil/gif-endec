@@ -1,6 +1,7 @@
 <?php
 namespace GIFEndec;
 
+use GIFEndec\Events\FrameDecodedEvent;
 use GIFEndec\Geometry\Point;
 use GIFEndec\Geometry\Rectangle;
 use GIFEndec\IO\PhpStream;
@@ -96,7 +97,11 @@ class Decoder
                         break;
                     case 0x2C:
                         $this->readImageDescriptor();
-                        $onFrameDecoded($this->currentFrame, $frameIndex++);
+
+                        $event = new FrameDecodedEvent();
+                        $event->frameIndex = $frameIndex++;
+                        $event->decodedFrame = $this->currentFrame;
+                        $onFrameDecoded($event);
                         break;
                     case 0x3B:
                         $cycle = false;
