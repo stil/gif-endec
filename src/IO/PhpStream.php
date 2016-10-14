@@ -1,29 +1,12 @@
 <?php
-namespace GIFEndec;
+namespace GIFEndec\IO;
 
-class MemoryStream
+abstract class PhpStream
 {
-    /**
-     * @var string Bytes array
-     */
-    protected $bytes;
-
     /**
      * @var resource
      */
     protected $phpStream;
-
-    public function __construct()
-    {
-        $this->phpStream = fopen("php://memory", "wb+");
-    }
-
-    public function loadFromFile($path)
-    {
-        $this->phpStream = fopen($path, 'rb');
-        stream_set_read_buffer($this->phpStream, 1024*1024);
-        $this->seek(0);
-    }
 
     /**
      * @param int $bytesCount How many bytes to read
