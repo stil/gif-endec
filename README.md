@@ -1,11 +1,11 @@
-##Introduction
-###What is that?
+## Introduction
+### What is that?
 gif-endec is a GIF encoder and decoder. It allows you to split animated GIFs into separate frames. You can also extract frame durations and disposal method (disposal method indicates the way in which the graphic is to be treated after being displayed).
 
-###Performance
+### Performance
 Thanks to some code optimizations, this library decodes animated GIFs much faster than [Sybio/GifFrameExtractor](https://github.com/Sybio/GifFrameExtractor). It also optimizes memory usage, allowing you to process decoded frames one after another. It doesn't load all frames to memory at once.
 
-###Installation
+### Installation
 Install this package with Composer.
 ```bash
 composer require stil/gif-endec
@@ -64,7 +64,7 @@ $gifDecoder->decode(function (FrameDecodedEvent $event) {
 The result frames will be written to directory:
 ![](http://i.imgur.com/NLwHdo4.png)
 
-##Render animated GIFs' frames
+## Render animated GIFs' frames
 If your GIF is saved using transparency, some frames might look like this:
 ![](http://i.imgur.com/NIJGVnw.png)
 
@@ -109,7 +109,7 @@ $gifRenderer->start(function (FrameRenderedEvent $event) {
 ```
 
 
-##Create an animation
+## Create an animation
 Assume now, that we want to slow down this skateboarder animation a little bit, so we can see how to make such trick.
 We already have splitted frames in `skateboarder/frame*.gif` directory.
 
@@ -141,7 +141,7 @@ $gif->getStream()->copyContentsToFile('skateboarder/animation.gif');
 This is how our slowed down animation would look like:
 ![](http://i.imgur.com/iddzN5M.gif)
 
-##Disposal methods explained
+## Disposal methods explained
 Disposal Method indicates the way in which the graphic is to be treated after being displayed.
 ```
 Values :    0 -   No disposal specified. The decoder is
