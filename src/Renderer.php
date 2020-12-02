@@ -65,7 +65,7 @@ class Renderer
         $disposalMethod = $this->framePrevious->getDisposalMethod();
         if ($disposalMethod === 0 || $disposalMethod === 1) {
             $this->copyFrameToBuffer($frame);
-        } elseif ($disposalMethod === 2) {
+        } elseif ($disposalMethod === 2 || $disposalMethod == 3) {
             $this->restoreToBackground($this->framePrevious, imagecolortransparent($this->frameCurrent));
             $this->copyFrameToBuffer($frame);
         } else {
